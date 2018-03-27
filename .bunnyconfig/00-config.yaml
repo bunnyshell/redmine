@@ -1,0 +1,105 @@
+exec_once:
+ files:
+  /etc/apache2/sites-enabled/redmine.conf:
+    name: redmine.conf
+    path: /etc/apache2/sites-enabled/
+    mode: "0644"
+    owner: root
+    group: root
+    content: |
+      <VirtualHost *:80>
+       
+       DocumentRoot /var/www/html/redmine/public
+       <Directory /var/www/html/redmine/public>
+         RailsEnv production
+         RailsBaseURI /redmine
+         PassengerResolveSymlinksInDocumentRoot on
+         Allow from All
+         Options -MultiViews
+       </Directory>
+
+       CustomLog /var/log/apache2/access.log combined
+       ErrorLog /var/log/apache2/error.log
+      </VirtualHost>
+  /etc/apache2/mods-enabled/passenger.conf:
+    name: passenger.conf
+    path: /etc/apache2/mods-enabled/
+    mode: "0777"
+    owner: root
+    group: root
+    content: |
+      <IfModule mod_passenger.c>
+        PassengerRoot /usr/lib/ruby/vendor_ruby/phusion_passenger/locations.ini
+        PassengerDefaultRuby /usr/bin/ruby
+        PassengerDefaultUser www-data
+        PassengerRuby /usr/bin/ruby
+      <IfModule>
+  /tmp/database.yml:
+    name: database.yml
+    path: /tmp/
+    mode: "0644"
+    owner: root
+    group: root
+    content: |
+      production:
+        adapter: mysql2
+        database: DATABASE
+        host: localhost
+        username: USERNAME
+        password: "PASSWORD"
+        encoding: utf8
+
+      development:
+        adapter: mysql2
+        database: redmine_development
+        host: localhost
+        username: root
+        password: ""
+        encoding: utf8
+
+      test:
+        adapter: mysql2
+        database: redmine_test
+        host: localhost
+        username: root
+        password: ""
+        encoding: utf8
+
+ execs:
+  Get redmine source:
+   name: Get redmine source
+   command: |
+     wget -qO- http://www.redmine.org/releases/redmine-3.4.4.tar.gz | tar xvz  -C . --strip 1
+
+  Install Redmine:
+   name: Install Redmine 
+   command: |
+     #!/usr/bin/env bash
+     . /opt/bunnyshell/package_secrets.sh
+
+     tmp_config_file="/tmp/database.yml"
+     config_file="config/database.yml"
+     cp ${tmp_config_file} ${config_file}
+     
+     sed -i -- "s/DATABASE/${MYSQL__DATABASE_NAME}/g" ${config_file}
+     sed -i -- "s/USERNAME/${MYSQL__DATABASE_USER}/g" ${config_file}
+     sed -i -- "s/PASSWORD/${MYSQL__USER_PASSWORD}/g" ${config_file}
+     
+     gem install bundler
+     sudo apt-get install -y ruby-dev rubygems libmysqlclient-dev imagemagick libmagickwand-dev
+     bundle install --without development test
+     bundle exec rake generate_secret_token
+     RAILS_ENV=production bundle exec rake db:migrate
+     RAILS_ENV=production REDMINE_LANG=en bundle exec rake redmine:load_default_data
+  Remove default apache config file:
+   name: Remove default apache config file
+   command: |
+     rm -f /etc/apache2/sites-enabled/000-default.conf
+post_app_deploy:
+ execs:
+  Restart apache:
+   name: Restart apache
+   command: |
+     #!/usr/bin/env bash
+     chown -RL www-data:www-data /var/www/html/redmine
+     service apache2 restart
