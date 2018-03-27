@@ -73,6 +73,7 @@ exec_once:
 
   Install Redmine:
    name: Install Redmine 
+   timeout: "2000"
    command: |
      #!/usr/bin/env bash
      . /opt/bunnyshell/package_secrets.sh
