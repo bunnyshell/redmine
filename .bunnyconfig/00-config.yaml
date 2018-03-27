@@ -33,7 +33,7 @@ exec_once:
         PassengerDefaultRuby /usr/bin/ruby
         PassengerDefaultUser www-data
         PassengerRuby /usr/bin/ruby
-      <IfModule>
+      </IfModule>
   /tmp/database.yml:
     name: database.yml
     path: /tmp/
