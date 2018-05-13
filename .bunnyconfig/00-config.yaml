@@ -76,15 +76,15 @@ exec_once:
    timeout: "2000"
    command: |
      #!/usr/bin/env bash
-     . /opt/bunnyshell/package_secrets.sh
+     . ${APPLICATION_SECRETS_FILE}
 
      tmp_config_file="/tmp/database.yml"
      config_file="config/database.yml"
      cp ${tmp_config_file} ${config_file}
      
-     sed -i -- "s/DATABASE/${MYSQL__DATABASE_NAME}/g" ${config_file}
-     sed -i -- "s/USERNAME/${MYSQL__DATABASE_USER}/g" ${config_file}
-     sed -i -- "s/PASSWORD/${MYSQL__USER_PASSWORD}/g" ${config_file}
+     sed -i -- "s/DATABASE/${database_name}/g" ${config_file}
+     sed -i -- "s/USERNAME/${database_user}/g" ${config_file}
+     sed -i -- "s/PASSWORD/${user_password}/g" ${config_file}
      
      /usr/bin/gem install bundler
      apt-get install -y ruby-dev rubygems libmysqlclient-dev imagemagick libmagickwand-dev
