@@ -34,6 +34,14 @@ exec_once:
         PassengerDefaultUser www-data
         PassengerRuby /usr/bin/ruby
       </IfModule>
+  /etc/apache2/conf.d/ports.conf:
+    name: ports.conf
+    path: /etc/apache2/conf.d/
+    mode: "0777"
+    owner: root
+    group: root
+    content: |
+      Listen 80
   /tmp/database.yml:
     name: database.yml
     path: /tmp/
