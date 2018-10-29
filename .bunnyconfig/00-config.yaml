@@ -43,9 +43,9 @@ exec_once:
     content: |
       Listen 80
 
-  /var/www/html/redmine/config/database.yml:
+  /tmp/database.yml:
     name: database.yml
-    path: /var/www/html/redmine/config/
+    path: /tmp/
     mode: "0644"
     owner: root
     group: root
@@ -85,6 +85,8 @@ exec_once:
    timeout: "2000"
    command: |
      #!/usr/bin/env bash
+     
+     cp /tmp/database.yml /var/www/html/redmine/config/database.yml
      /usr/bin/gem install bundler
      apt-get install -y ruby-dev rubygems libmysqlclient-dev imagemagick libmagickwand-dev
      /usr/local/bin/bundle install --without development test
