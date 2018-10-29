@@ -42,9 +42,10 @@ exec_once:
     group: root
     content: |
       Listen 80
+
   /var/www/html/redmine/config/database.yml:
     name: database.yml
-    path: /tmp/
+    path: /var/www/html/redmine/config/
     mode: "0644"
     owner: root
     group: root
