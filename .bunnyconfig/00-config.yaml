@@ -86,7 +86,7 @@ exec_once:
    command: |
      #!/usr/bin/env bash
      
-     cp /tmp/database.yml /var/www/html/redmine/config/database.yml
+     cp /tmp/database.yml config/database.yml
      /usr/bin/gem install bundler
      apt-get install -y ruby-dev rubygems libmysqlclient-dev imagemagick libmagickwand-dev
      /usr/local/bin/bundle install --without development test
