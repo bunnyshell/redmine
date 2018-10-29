@@ -42,7 +42,7 @@ exec_once:
     group: root
     content: |
       Listen 80
-  /tmp/database.yml:
+  /var/www/html/redmine/config/database.yml:
     name: database.yml
     path: /tmp/
     mode: "0644"
@@ -51,10 +51,10 @@ exec_once:
     content: |
       production:
         adapter: mysql2
-        database: DATABASE
+        database: <%= @database_name %>
         host: localhost
-        username: USERNAME
-        password: "PASSWORD"
+        username: <%= @database_user %>
+        password: "<%= @user_password %>"
         encoding: utf8
 
       development:
@@ -84,26 +84,13 @@ exec_once:
    timeout: "2000"
    command: |
      #!/usr/bin/env bash
-     . ${APPLICATION_SECRETS_FILE}
-
-     tmp_config_file="/tmp/database.yml"
-     config_file="config/database.yml"
-     cp ${tmp_config_file} ${config_file}
-     
-     sed -i -- "s/DATABASE/${database_name}/g" ${config_file}
-     sed -i -- "s/USERNAME/${database_user}/g" ${config_file}
-     sed -i -- "s/PASSWORD/${user_password}/g" ${config_file}
-     
      /usr/bin/gem install bundler
      apt-get install -y ruby-dev rubygems libmysqlclient-dev imagemagick libmagickwand-dev
      /usr/local/bin/bundle install --without development test
      /usr/local/bin/bundle exec rake generate_secret_token
      RAILS_ENV=production /usr/local/bin/bundle exec rake db:migrate
      RAILS_ENV=production REDMINE_LANG=en /usr/local/bin/bundle exec rake redmine:load_default_data
-  Remove default apache config file:
-   name: Remove default apache config file
-   command: |
-     rm -f /etc/apache2/sites-enabled/000-default.conf
+
 post_app_deploy:
  execs:
   Restart apache:
