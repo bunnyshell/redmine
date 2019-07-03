@@ -9,8 +9,8 @@ exec_once:
     content: |
       <VirtualHost *:80>
        
-       DocumentRoot /var/www/html/redmine/public
-       <Directory /var/www/html/redmine/public>
+       DocumentRoot <%= @app_root %>/public
+       <Directory <%= @app_root %>/public>
          RailsEnv production
          RailsBaseURI /redmine
          PassengerResolveSymlinksInDocumentRoot on
@@ -100,6 +100,6 @@ post_app_deploy:
    name: Restart apache
    command: |
      #!/usr/bin/env bash
-     chown -RL www-data:www-data /var/www/html/redmine
+     chown -RL www-data:www-data <%= @app_root %>
      rm -f /etc/apache2/sites-enabled/000-default.conf
      service apache2 restart
